@@ -72,7 +72,7 @@ def bala(x, y):
     estado_bala = "disparo"
 
 def mostrar_puntuacion(x, y):
-    puntuacion = fuente.render("Puntos: " + str(puntuacion_valor), True, (255, 255, 255))")
+    puntuacion = fuente.render("Puntos: " + str(puntuacion_valor), True, (255, 255, 255))
     pantalla.blit(puntuacion, (x, y))
 
 def mostrar_vidas(x, y):
@@ -96,3 +96,36 @@ def partida_terminada():
     pygame.display.update()
     time.sleep(3)
     regresar_al_menu()
+
+def regresar_al_menu():
+    global vidas, nivel, jugador_X, jugador_Y, bala_Y, estado_bala
+    vidas = 3
+    nivel = 1
+    jugador_X = 370
+    jugador_Y = 523
+    bala_Y = 500
+    estado_bala = "reposo"
+    for i in range(num_invasores):
+        invasor_X[i] = random.randint(64, 737)
+        invasor_Y[i] = random.randint(30, 180)
+    global estado_juego
+    estado_juego = "menu"
+
+def mostrar_menu():
+    pantalla.fill((0, 0, 0))
+    texto_menu = fuente_menu.render("Space Invaders", True, (255, 255, 255))
+    pantalla.blit(texto_menu, (ancho_pantalla // 2 - texto_menu.get_width() // 2, 100))
+
+    texto_jugar = fuente_menu.render("1. Iniciar juego", True, (255, 255, 255))
+    pantalla.blit(texto_jugar, (ancho_pantalla // 2 - texto_jugar.get_width() // 2, 200))
+
+    texto_tienda = fuente_menu.render("2. Tienda", True, (255, 255, 255))
+    pantalla.blit(texto_tienda, (ancho_pantalla // 2 - texto_tienda.get_width() // 2, 250))
+
+    texto_instrucciones = fuente_menu.render("3. Instrucciones", True, (255, 255, 255))
+    pantalla.blit(texto_instrucciones, (ancho_pantalla // 2 - texto_instrucciones.get_width() // 2, 300))
+
+    texto_salir = fuente_menu.render("4. Salir", True, (255, 255, 255))
+    pantalla.blit(texto_salir, (ancho_pantalla // 2 - texto_salir.get_width() // 2, 350))
+
+    pygame.display.update()
