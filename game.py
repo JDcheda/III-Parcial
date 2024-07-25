@@ -129,3 +129,60 @@ def mostrar_menu():
     pantalla.blit(texto_salir, (ancho_pantalla // 2 - texto_salir.get_width() // 2, 350))
 
     pygame.display.update()
+
+def mostrar_instrucciones():
+    pantalla.fill((0, 0, 0))
+    instrucciones = [
+        "Use las flechas izquierda y derecha para mover la nave.",
+        "Presiona la barra espaciadora para disparar.",
+        "Elimina a todos los invasores para ganar puntos.",
+        "Ve a la tienda para canjear puntos por diferentes naves.",
+        "Presiona 'M' para volver al menú principal."
+    ]
+y_offset = 100
+for linea in instrucciones:
+    texto_instruccion = fuente_instrucciones.render(linea, True, (255, 255, 255))
+    pantalla.blit(texto_instruccion, (50, y_offset))
+    y_offset += 40
+    pygame.display.update()
+mensaje_error_tienda = ""
+
+def mostrar_tienda():
+    global mensaje_error_tienda
+    pantalla.fill((0, 0, 0))
+    texto_tienda = fuente_menu.render("Tienda", True, (255, 255, 255))
+    pantalla.blit(texto_tienda, (ancho_pantalla // 2 - texto_tienda.get_width() // 2, 100))
+
+    texto_puntos = fuente.render(f"Puntos: {puntuacion_valor}", True, (255, 255, 255))
+    pantalla.blit(texto_puntos, (50, 150))
+
+    textos_items = [
+        f"1. Nave 1 - 10 puntos",
+        f"2. Nave 2 - 20 puntos",
+        "Presiona 'M' para volver al menú principal."
+    ]
+    y_offset = 200
+    for texto_item in textos_items:
+        texto = fuente_instrucciones.render(texto_item, True, (255, 255, 255))
+        pantalla.blit(texto, (50, y_offset))
+        y_offset += 40
+
+    if mensaje_error_tienda:
+        texto_error = fuente.render(mensaje_error_tienda, True, (255, 0, 0))
+        pantalla.blit(texto_error, (50, y_offset + 40))
+
+    pygame.display.update()
+
+def mostrar_menu_pausa():
+    pantalla.fill((0, 0, 0))
+    texto_pausa = fuente_menu.render("Juego Pausado", True, (255, 255, 255))
+    pantalla.blit(texto_pausa, (ancho_pantalla // 2 - texto_pausa.get_width() // 2, 100))
+
+    texto_continuar = fuente_menu.render("1. Continuar", True, (255, 255, 255))
+    pantalla.blit(texto_continuar, (ancho_pantalla // 2 - texto_continuar.get_width() // 2, 200))
+
+    texto_terminar = fuente_menu.render("2. Terminar partida", True, (255, 255, 255))
+    pantalla.blit(texto_terminar, (ancho_pantalla // 2 - texto_terminar.get_width() // 2, 250))
+
+    pygame.display.update()
+    
