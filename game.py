@@ -185,4 +185,67 @@ def mostrar_menu_pausa():
     pantalla.blit(texto_terminar, (ancho_pantalla // 2 - texto_terminar.get_width() // 2, 250))
 
     pygame.display.update()
-    
+
+estado_juego = "menu"
+juego_pausado = False
+corriendo = True
+while corriendo:
+    for evento in pygame.event.get():
+        if evento.type == pygame.QUIT:
+            corriendo = False
+
+        if estado_juego == "menu":
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_1:
+                    estado_juego = "juego"
+                elif evento.key == pygame.K_2:
+                    estado_juego = "tienda"
+                elif evento.key == pygame.K_3:
+                    estado_juego = "instrucciones"
+                elif evento.key == pygame.K_4:
+                    corriendo = False
+
+        elif estado_juego == "instrucciones":
+            if evento.type == pygame.KEYDOWN and evento.key == pygame.K_m:
+                estado_juego = "menu"
+
+        elif estado_juego == "tienda":
+            if evento.type == pygame.KEYDOWN and evento.key == pygame.K_m:
+                estado_juego = "menu"
+                mensaje_error_tienda = ""
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_1:
+                    if puntuacion_valor >= 10:
+                        indice_imagen_jugador = 0
+                        imagen_jugador = pygame.image.load(imagenes_jugador[indice_imagen_jugador])
+                        puntuacion_valor -= 10
+                        mensaje_error_tienda = ""
+                    else:
+                        mensaje_error_tienda = "Puntos insuficientes para comprar Nave 1"
+                elif evento.key == pygame.K_2:
+                    if puntuacion_valor >= 20:
+                        indice_imagen_jugador = 1
+                        imagen_jugador = pygame.image.load(imagenes_jugador[indice_imagen_jugador])
+                        puntuacion_valor -= 20
+                        mensaje_error_tienda = ""
+                    else:
+                        mensaje_error_tienda = "Puntos insuficientes para comprar Nave 2"
+
+        elif estado_juego == "juego":
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_LEFT:
+                    jugador_Xcambio = -3
+                if evento.key == pygame.K_RIGHT:
+                    jugador_Xcambio = 3
+                if evento.key == pygame.K_SPACE:
+                    if estado_bala == "reposo":
+                        bala_X = jugador_X
+                        bala(bala_X, bala_Y)
+                        sonido_bala = mixer.Sound('data/bullet.wav')
+                        sonido_bala.play()
+                if evento.key == pygame.K_p:
+                    juego_pausado = True
+
+            if evento.type == pygame.KEYUP:
+                if evento.key == pygame.K_LEFT or evento.key == pygame.K_RIGHT:
+                    jugador_Xcambio = 0
