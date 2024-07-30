@@ -10,6 +10,8 @@ ancho_pantalla = 800
 alto_pantalla = 600
 pantalla = pygame.display.set_mode((ancho_pantalla, alto_pantalla))
 
+fondo = pygame.image.load('data/fondo.png')
+
 pygame.display.set_caption("Bienvenido a Space Invaders")
 
 puntuacion_valor = 0
@@ -216,7 +218,7 @@ while corriendo:
             if evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_1:
                     if puntuacion_valor >= 10:
-                        indice_imagen_jugador = 0
+                        indice_imagen_jugador = 1
                         imagen_jugador = pygame.image.load(imagenes_jugador[indice_imagen_jugador])
                         puntuacion_valor -= 10
                         mensaje_error_tienda = ""
@@ -224,7 +226,7 @@ while corriendo:
                         mensaje_error_tienda = "Puntos insuficientes para comprar Nave 1"
                 elif evento.key == pygame.K_2:
                     if puntuacion_valor >= 20:
-                        indice_imagen_jugador = 1
+                        indice_imagen_jugador = 2
                         imagen_jugador = pygame.image.load(imagenes_jugador[indice_imagen_jugador])
                         puntuacion_valor -= 20
                         mensaje_error_tienda = ""
@@ -249,3 +251,57 @@ while corriendo:
             if evento.type == pygame.KEYUP:
                 if evento.key == pygame.K_LEFT or evento.key == pygame.K_RIGHT:
                     jugador_Xcambio = 0
+
+    if estado_juego == "juego":
+        pantalla.blit(fondo, (0, 0))
+        jugador_X += jugador_Xcambio
+
+        for i in range(num_invasores):
+            invasor_X[i] += invasor_Xcambio[i]
+
+        if bala_Y <= 0:
+            bala_Y = 500
+            estado_bala = "reposo"
+        if estado_bala == "disparo":
+            bala(bala_X, bala_Y)
+            bala_Y -= bala_Ycambio
+
+        for i in range(num_invasores):
+            if invasor_Y[i] >= 450:
+                if abs(jugador_X - invasor_X[i]) < 80:
+                    vidas -= 1
+                    if vidas == 0:
+                        for j in range(num_invasores):
+                            invasor_Y[j] = 2000
+                            sonido_explosion = mixer.Sound('data/explosion.wav')
+                            sonido_explosion.play()
+                        fin_juego()
+                        break
+                    else:
+                        invasor_Y[i] = random.randint(30, 180)
+                        invasor_X[i] = random.randint(64, 737)
+
+            if invasor_X[i] >= 735 or invasor_X[i] <= 0:
+                invasor_Xcambio[i] *= -1
+                invasor_Y[i] += invasor_Ycambio[i]
+
+            colision = esColision(bala_X, invasor_X[i], bala_Y, invasor_Y[i])
+            if colision:
+                puntuacion_valor += 1
+                bala_Y = 500
+                estado_bala = "reposo"
+                invasor_X[i] = random.randint(64, 736)
+                invasor_Y[i] = random.randint(30, 200)
+                invasor_Xcambio[i] *= -1
+
+            invasor(invasor_X[i], invasor_Y[i], i)
+
+        if jugador_X <= 16:
+            jugador_X = 16
+        elif jugador_X >= 750:
+            jugador_X = 750
+
+        jugador(jugador_X, jugador_Y)
+        mostrar_puntuacion(puntuacionX, puntuacionY)
+        mostrar_vidas(ancho_pantalla - 120, puntuacionY)
+        mostrar_nivel(ancho_pantalla - 120, puntuacionY + 30)
