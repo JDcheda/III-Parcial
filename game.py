@@ -51,7 +51,7 @@ for num in range(num_invasores):
     imagen_invasor.append(pygame.image.load('data/alien.png'))
     invasor_X.append(random.randint(64, 737))
     invasor_Y.append(random.randint(30, 180))
-    invasor_Xcambio.append(2)  # Incrementa la velocidad de los enemigos
+    invasor_Xcambio.append(2)
     invasor_Ycambio.append(40)
 
 imagen_bala = pygame.image.load('data/bullet.png')
