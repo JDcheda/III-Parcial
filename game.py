@@ -1,4 +1,3 @@
-import os
 import pygame
 import random
 import math
@@ -14,6 +13,7 @@ pantalla = pygame.display.set_mode((ancho_pantalla, alto_pantalla))
 fondo = pygame.image.load('data/fondo.png')
 
 pygame.display.set_caption("Bienvenido a Space Invaders")
+
 
 puntuacion_valor = 0
 puntuacionX = 5
@@ -102,7 +102,7 @@ def partida_terminada():
     pantalla.blit(terminado_texto, (190, 250))
     pygame.display.update()
     time.sleep(3)
-    regresar_al_menu(keep_puntuacion=True) 
+    regresar_al_menu(keep_puntuacion=True)
 
 def regresar_al_menu(keep_puntuacion=False):
     global vidas, nivel, jugador_X, jugador_Y, balas, mensaje_error_tienda, estado_juego, juego_pausado, puntuacion_valor, jefe_vida
@@ -111,9 +111,9 @@ def regresar_al_menu(keep_puntuacion=False):
     vidas = 3
     nivel = 1
     jugador_X = 370
-    jugador_Y = 523
+    jugador_Y = 523  # Asegúrate de restablecer jugador_Y a 523
     balas = []
-    jefe_vida = 20
+    jefe_vida = 10
     mensaje_error_tienda = ""
     for i in range(num_invasores):
         invasor_X[i] = random.randint(64, 737)
@@ -149,6 +149,7 @@ def mostrar_instrucciones():
         "Use las flechas izquierda y derecha para mover la nave.",
         "Presiona la barra espaciadora para disparar.",
         "Elimina a todos los invasores para ganar puntos.",
+        "Elimina al invasor Jefe en el ultimo nivel para ganar la partida",
         "Ve a la tienda para canjear puntos por diferentes naves.",
         "Presiona 'M' para volver al menú principal."
     ]
@@ -184,19 +185,43 @@ def mostrar_tienda():
     if mensaje_error_tienda:
         texto_error = fuente_instrucciones.render(mensaje_error_tienda, True, (255, 0, 0))
         pantalla.blit(texto_error, (50, y_offset))
-    
+
+    pygame.display.update()
+
+def cambiar_nave(indice):
+    global indice_imagen_jugador, imagen_jugador, mensaje_error_tienda
+    if indice == 1 and puntuacion_valor >= 10:
+        indice_imagen_jugador = 1
+        imagen_jugador = pygame.image.load(imagenes_jugador[indice_imagen_jugador])
+        mensaje_error_tienda = "Te has equipado la nave 1"
+    elif indice == 2 and puntuacion_valor >= 20:
+        indice_imagen_jugador = 2
+        imagen_jugador = pygame.image.load(imagenes_jugador[indice_imagen_jugador])
+        mensaje_error_tienda = "Te has equipado la nave 2"
+    else:
+        mensaje_error_tienda = "No tienes suficientes puntos para esta nave."
+    mostrar_tienda()
+
+def mostrar_pausa():
+    pantalla.fill((0, 0, 0))
+    texto_pausa = fuente_menu.render("Partida en pausa", True, (255, 255, 255))
+    pantalla.blit(texto_pausa, (ancho_pantalla // 2 - texto_pausa.get_width() // 2, 100))
+
+    texto_continuar = fuente_menu.render("1. Continuar", True, (255, 255, 255))
+    pantalla.blit(texto_continuar, (ancho_pantalla // 2 - texto_continuar.get_width() // 2, 200))
+
+    texto_terminar = fuente_menu.render("2. Terminar partida", True, (255, 255, 255))
+    pantalla.blit(texto_terminar, (ancho_pantalla // 2 - texto_terminar.get_width() // 2, 250))
+
     pygame.display.update()
 
 estado_juego = "menu"
 juego_pausado = False
 
-
 ejecutando = True
 while ejecutando:
 
-  
     pantalla.fill((0, 0, 0))
-
     pantalla.blit(fondo, (0, 0))
 
     for evento in pygame.event.get():
@@ -204,55 +229,52 @@ while ejecutando:
             ejecutando = False
 
         if evento.type == pygame.KEYDOWN:
-            if estado_juego == "menu":
-                if evento.key == pygame.K_1:
-                    estado_juego = "jugando"
-                    vidas = 3
-                    puntuacion_valor = 0
-                    nivel = 1
-                elif evento.key == pygame.K_2:
-                    estado_juego = "tienda"
-                elif evento.key == pygame.K_3:
-                    estado_juego = "instrucciones"
-                elif evento.key == pygame.K_4:
-                    ejecutando = False
-            elif estado_juego == "jugando":
+            if estado_juego == "jugando":
                 if evento.key == pygame.K_LEFT:
                     jugador_Xcambio = -3
                 if evento.key == pygame.K_RIGHT:
                     jugador_Xcambio = 3
                 if evento.key == pygame.K_SPACE:
-                    if len(balas) < 10:
-                        balas.append([jugador_X, jugador_Y])
+                    bala_Sonido = mixer.Sound('data/bullet.wav')
+                    bala_Sonido.play()
+                    balas.append([jugador_X + 16, jugador_Y + 10])
+                if evento.key == pygame.K_p:
+                    juego_pausado = not juego_pausado 
+                    if juego_pausado:
+                        estado_juego = "pausa"
+            elif estado_juego == "menu":
+                if evento.key == pygame.K_1:
+                    estado_juego = "jugando"
+                if evento.key == pygame.K_2:
+                    estado_juego = "tienda"
+                if evento.key == pygame.K_3:
+                    estado_juego = "instrucciones"
+                if evento.key == pygame.K_4:
+                    ejecutando = False
             elif estado_juego == "instrucciones":
                 if evento.key == pygame.K_m:
-                    regresar_al_menu()
+                    estado_juego = "menu"
+                    mostrar_menu()
             elif estado_juego == "tienda":
+                if evento.key == pygame.K_1:
+                    cambiar_nave(1)
+                if evento.key == pygame.K_2:
+                    cambiar_nave(2)
                 if evento.key == pygame.K_m:
-                    regresar_al_menu()
-                elif evento.key == pygame.K_1:
-                    if puntuacion_valor >= 10:
-                        indice_imagen_jugador = 1
-                        imagen_jugador = pygame.image.load(imagenes_jugador[indice_imagen_jugador])
-                        puntuacion_valor -= 10
-                        mensaje_error_tienda = ""
-                    else:
-                        mensaje_error_tienda = "No tienes suficientes puntos para comprar esta nave."
-                elif evento.key == pygame.K_2:
-                    if puntuacion_valor >= 20:
-                        indice_imagen_jugador = 2
-                        imagen_jugador = pygame.image.load(imagenes_jugador[indice_imagen_jugador])
-                        puntuacion_valor -= 20
-                        mensaje_error_tienda = ""
-                    else:
-                        mensaje_error_tienda = "No tienes suficientes puntos para comprar esta nave."
+                    estado_juego = "menu"
+                    mostrar_menu()
+            elif estado_juego == "pausa":
+                if evento.key == pygame.K_1:
+                    juego_pausado = False
+                    estado_juego = "jugando"
+                if evento.key == pygame.K_2:
+                    partida_terminada()
 
         if evento.type == pygame.KEYUP:
             if evento.key == pygame.K_LEFT or evento.key == pygame.K_RIGHT:
                 jugador_Xcambio = 0
 
-    if estado_juego == "jugando":
-        
+    if estado_juego == "jugando" and not juego_pausado:
         jugador_X += jugador_Xcambio
         if jugador_X <= 64:
             jugador_X = 64
@@ -261,7 +283,6 @@ while ejecutando:
 
         for i in range(num_invasores):
             invasor_X[i] += invasor_Xcambio[i]
-
             if invasor_X[i] <= 0:
                 invasor_Xcambio[i] = 2 + nivel
                 invasor_Y[i] += invasor_Ycambio[i]
@@ -269,7 +290,6 @@ while ejecutando:
                 invasor_Xcambio[i] = -(2 + nivel)
                 invasor_Y[i] += invasor_Ycambio[i]
 
-           
             for bala in balas:
                 colision = esColision(invasor_X[i], bala[0], invasor_Y[i], bala[1])
                 if colision:
@@ -280,7 +300,6 @@ while ejecutando:
 
             invasor(invasor_X[i], invasor_Y[i], i)
 
-        
         if nivel == 3:
             jefe_X += jefe_Xcambio
             if jefe_X <= 0 or jefe_X >= 736:
@@ -295,14 +314,12 @@ while ejecutando:
 
             pantalla.blit(imagen_jefe, (jefe_X, jefe_Y))
 
-        
         for bala in balas:
             bala[1] -= bala_Ycambio
             if bala[1] <= 0:
                 balas.remove(bala)
             dibujar_bala(bala[0], bala[1])
 
-        
         for i in range(num_invasores):
             if invasor_Y[i] > 450:
                 for j in range(num_invasores):
@@ -328,5 +345,7 @@ while ejecutando:
         mostrar_instrucciones()
     elif estado_juego == "tienda":
         mostrar_tienda()
+    elif estado_juego == "pausa":
+        mostrar_pausa()
 
 pygame.quit()
